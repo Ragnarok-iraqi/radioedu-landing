@@ -281,6 +281,6 @@ radioedu-landing/
 
 **⭐ إذا أعجبك المشروع، لا تنسى إعطاءه نجمة! ⭐**
 
-**Made with ☢️ and 💙 for the Radiology Community**
+**Made By SAJAD JAMAA for ☢️ the Radiology Community**
 
 </div>
