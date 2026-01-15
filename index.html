@@ -79,7 +79,96 @@
 
         @keyframes fadeInDown {
             from {
-                opacity: 0;
+                if (error) {
+                    // التحقق من البريد المكرر
+                    if (error.code === '23505') {
+                        showMessage(errorMsg, '✅ هذا البريد مسجل مسبقاً! شكراً لاهتمامك');
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    // نجاح التسجيل
+                    showMessage(successMsg, '✨ تم التسجيل بنجاح! سنراسلك عند الإطلاق');
+                    form.reset();
+                    
+                    // تحديث عدد المشتركين
+                    updateSubscriberCount();
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage(errorMsg, '❌ حدث خطأ! يرجى المحاولة مرة أخرى');
+            } finally {
+                // إعادة تفعيل الزر
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'سجّل الآن مجاناً 🚀';
+            }
+        });
+
+        // دالة التحقق من البريد الإلكتروني
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // دالة إظهار الرسالة
+        function showMessage(element, text) {
+            element.textContent = text;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // دالة إخفاء جميع الرسائل
+        function hideMessages() {
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+        }
+
+        // جلب وتحديث عدد المشتركين
+        async function updateSubscriberCount() {
+            try {
+                const { count, error } = await supabase
+                    .from('email_subscribers')
+                    .select('*', { count: 'exact', head: true });
+
+                if (!error && count !== null) {
+                    subscriberCount.innerHTML = `
+                        🎉 انضم بالفعل <strong>${count}</strong> من زملائك!
+                    `;
+                }
+            } catch (error) {
+                console.error('Error fetching count:', error);
+            }
+        }
+
+        // تحديث العدد عند تحميل الصفحة
+        updateSubscriberCount();
+
+        // Countdown Timer (30 days from now)
+        function updateCountdown() {
+            const launchDate = new Date();
+            launchDate.setDate(launchDate.getDate() + 30);
+            
+            const now = new Date().getTime();
+            const distance = launchDate - now;
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours;
+            document.getElementById('minutes').textContent = minutes;
+        }
+        
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
+    </script>
+</body>
+</html> opacity: 0;
                 transform: translateY(-30px);
             }
             to {
@@ -583,75 +672,4 @@
                 <div class="benefit-item">إشعار فوري عند الإطلاق</div>
                 <div class="benefit-item">وصول مبكر حصري</div>
                 <div class="benefit-item">مكافآت خاصة للأوائل</div>
-                <div class="benefit-item">محتوى تدريبي مجاني</div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <p>© 2026 RadioEdu AI - مصنوع  من قبل SAJAD JAMAA زميل لزملائه</p>
-            <p style="margin-top: 15px; font-size: 14px;">تواصل معنا: <a href="mailto:hackerkwzaky4@gmail.com" style="color: #00d4ff; text-decoration: none;">hackerkwzaky4@gmail.com</a></p>
-            <div class="social-links">
-                <a href="https://www.instagram.com/s0_17iq?igsh=ZW1iODhxczh0a2Vz" target="_blank" class="social-link" title="Instagram">📷</a>
-                <a href="https://tiktok.com/@radioedu.ai" target="_blank" class="social-link" title="TikTok">🎵</a>
-                <a href="https://t.me/radioedu_ai" target="_blank" class="social-link" title="Telegram">✈️</a>
-                <a href="https://wa.me/9647838819550" target="_blank" class="social-link" title="WhatsApp">💬</a>
-                <a href="mailto:hackerkwzaky4@gmail.com" class="social-link" title="Email">✉️</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <script>
-        // ⚠️ استبدل هذه القيم بقيمك من Supabase
-        const SUPABASE_URL = 'https://vglgfwbwsupretmefybp.supabase.co'; // مثل: https://xxxxx.supabase.co
-        const SUPABASE_ANON_KEY = 'sb_publishable_mpzfP8hhv36lDScPmpSpsA_C8QLilMC'; // المفتاح الطويل
-
-        // إنشاء عميل Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // عناصر النموذج
-        const form = document.getElementById('signupForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const successMsg = document.getElementById('successMessage');
-        const errorMsg = document.getElementById('errorMessage');
-        const subscriberCount = document.getElementById('subscriberCount');
-
-        // إرسال النموذج
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('emailInput').value.trim();
-            const name = document.getElementById('nameInput').value.trim();
-            const phone = document.getElementById('phoneInput').value.trim();
-
-            // التحقق من البريد الإلكتروني
-            if (!email || !validateEmail(email)) {
-                showMessage(errorMsg, 'يرجى إدخال بريد إلكتروني صحيح');
-                return;
-            }
-
-            // تعطيل الزر وإظهار التحميل
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = 'جاري التسجيل... <span class="spinner"></span>';
-            
-            // إخفاء الرسائل السابقة
-            hideMessages();
-
-            try {
-                // إرسال البيانات إلى Supabase
-                const { data, error } = await supabase
-                    .from('email_subscribers')
-                    .insert([
-                        { 
-                            email: email,
-                            name: name || null,
-                            phone: phone || null,
-                            source: 'landing_page'
-                        }
-                    ]);
-
-               
+                <div class="benefit-item">مح
