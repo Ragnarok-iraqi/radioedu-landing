@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RadioEdu AI | مستقبل تعليم تقنيات الأشعة</title>
+    
+    <meta name="description" content="أول منصة عربية ذكية تدربك على الحالات الإشعاعية الحقيقية باستخدام الذكاء الاصطناعي المتقدم.">
+    <meta name="keywords" content="أشعة, ذكاء اصطناعي, تعليم طبي, تدريب إشعاعي, راديو إيدو">
+    <meta property="og:title" content="RadioEdu AI">
+    <meta property="og:description" content="مستقبل تعليم تقنيات الأشعة بالذكاء الاصطناعي">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(90deg, #00d4ff, #00ff88);
+            --dark-bg: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a8dadc;
+            --success-color: #00ff88;
+            --error-color: #ff6b6b;
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --neon-blue: #00d4ff;
+            --neon-green: #00ff88;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', 'Segoe UI', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--dark-bg);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- الرسوم المتحركة --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .fade-in-up { animation: fadeInUp 0.8s ease forwards; }
+
+        /* --- تنسيقات Glassmorphism --- */
+        .glass {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* --- Header --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 10%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.4s;
+        }
+
+        header.scrolled {
+            padding: 10px 10%;
+            background: rgba(15, 32, 39, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--neon-blue);        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 10%;
+            position: relative;
+        }
+
+        .badge {
+            background: var(--primary-gradient);
+            padding: 5px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 8vw, 72px);
+            font-weight: 900;
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.1); }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 50px;
+            color: rgba(0, 212, 255, 0.1);
+            z-index: -1;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        /* --- Features Section --- */
+        .features {
+            padding: 100px 10%;
+            text-align: center;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            padding: 40px;
+            border-radius: 30px;
+            transition: 0.5s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--secondary-gradient);
+            transform: scaleX(0);
+            transition: 0.5s;
+        }
+
+        .feature-card:hover { transform: translateY(-15px); }
+        .feature-card:hover::before { transform: scaleX(1); }
+
+        .feature-card i {
+            font-size: 45px;
+            margin-bottom: 20px;
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- CTA Section --- */
+        .cta-section {
+            padding: 100px 10%;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5));
+            position: relative;
+        }
+
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .time-box {
+            width: 100px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .time-box span { display: block; font-size: 30px; font-weight: 900; color: var(--neon-blue); }
+
+        .reg-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 40px;
+        }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+
+        input {
+            width: 100%;
+            padding: 15px 25px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0,212,255,0.3); }
+
+        .btn-cta {
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            border: none;
+            background: var(--secondary-gradient);
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-cta:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(0,212,255,0.4); }
+        .btn-cta:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* --- Footer --- */
+        footer {
+            padding: 60px 10% 30px;
+            background: rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .social-icons a {
+            font-size: 24px;
+            color: var(--text-secondary);
+            transition: 0.3s;
+        }
+
+        .social-icons a:hover { color: var(--neon-blue); transform: translateY(-5px); }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 40px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .timer-container { gap: 10px; }
+            .time-box { width: 70px; padding: 10px; }
+            .time-box span { font-size: 20px; }
+            header { padding: 15px 5%; }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top: 3px solid #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+  <header id="main-nav">
+        <div class="logo">
+            <i class="fas fa-microchip"></i>
+            RadioEdu AI
+        </div>
+        <a href="#register" class="btn-cta" style="width: auto; padding: 10px 25px;">انضم الآن</a>
+    </header>
+
+    <section class="hero">
+        <i class="fas fa-dna floating-icon" style="top: 20%; right: 10%;"></i>
+        <i class="fas fa-atom floating-icon" style="bottom: 20%; left: 10%; animation-delay: 2s;"></i>
+        
+        <div class="badge fade-in-up">قريباً في 2026</div>
+        <h1 class="fade-in-up">مستقبل تعليم <br> تقنيات الأشعة</h1>
+        <p class="fade-in-up">أول منصة عربية ذكية تدربك على الحالات الإشعاعية الحقيقية باستخدام الذكاء الاصطناعي المتقدم.</p>
+        
+        <div class="stats-grid fade-in-up">
+            <div class="stat-card glass">
+                <i class="fas fa-images" style="color: #00d4ff; font-size: 30px;"></i>
+                <h2>5000+</h2>
+                <p>صورة إشعاعية</p>
+            </div>
+            <div class="stat-card glass">
+                <i class="fas fa-robot" style="color: #00ff88; font-size: 30px;"></i>
+                <h2>AI</h2>
+                <p>ذكاء اصطناعي متخصص</p>
+            </div>
+            <div class="stat-card glass">
+                <i class="fas fa-check-double" style="color: #667eea; font-size: 30px;"></i>
+                <h2>100%</h2>
+                <p>حالات واقعية</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2 style="font-size: 36px;">ماذا ينتظركم في "RadioEdu AI"؟</h2>
+        <div class="features-grid">
+            <div class="feature-card glass">
+                <i class="fas fa-hospital-user"></i>
+                <h3>المركز السريري</h3>
+                <p>واجه تحديات واقعية وحالات طوارئ حقيقية (كسور، أورام) مسحوبة من سحابة البيانات الخاصة بنا.</p>
+            </div>
+            <div class="feature-card glass">
+                <i class="fas fa-user-md"></i>
+                <h3>مدربك الشخصي AI</h3>
+                <p>النظام سيصحح لك تحليلك للصورة ويعطيك الملاحظات الطبية والتقنية فوراً بذكاء المحرك المدمج.</p>
+            </div>
+            <div class="feature-card glass">
+                <i class="fas fa-book-medical"></i>
+                <h3>رحلة في التشريح</h3>
+                <p>استكشف خبايا الجسم البشري إشعاعياً من خلال موسوعة تفاعلية تربط التشريح بالحالة المرضية.</p>
+            </div>
+            <div class="feature-card glass">
+                <i class="fas fa-chart-line"></i>
+                <h3>راقب مستواك</h3>
+                <p>شاهد مستواك يرتفع مع كل تشخيص صحيح واجمع نقاط XP لتنافس زملاءك وتصبح محترفاً.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="register">
+        <div style="text-align: center;">
+            <h2>احجز مقعدك في مقدمة المستقبل</h2>
+            <div class="timer-container">
+                <div class="time-box glass"><span id="days">00</span>أيام</div>
+                <div class="time-box glass"><span id="hours">00</span>ساعة</div>
+                <div class="time-box glass"><span id="minutes">00</span>دقيقة</div>
+            </div>
+        </div>
+
+        <div class="reg-form glass">
+            <form id="subscriberForm">
+                <div class="input-group">
+                    <input type="text" id="full_name" placeholder="الاسم الكامل">
+                </div>
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+                </div>
+                <button type="submit" class="btn-cta" id="submit-btn">
+                    <span>سجل اهتمامك الآن</span>
+                    <div class="spinner" id="btn-spinner"></div>
+                </button>
+            </form>
+            
+            <p id="response-msg" style="margin-top: 20px; text-align: center; display: none;"></p>
+
+            <div style="margin-top: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <p id="sub-count-display"><i class="fas fa-users"></i> جاري تحميل عدد المشتركين...</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; font-size: 14px; text-align: right;">
+                    <div><i class="fas fa-check-circle" style="color: var(--neon-green);"></i> إشعار فوري عند الإطلاق</div>
+                    <div><i class="fas fa-check-circle" style="color: var(--neon-green);"></i> وصول مبكر حصري</div>
+                    <div><i class="fas fa-check-circle" style="color: var(--neon-green);"></i> مكافآت خاصة للأوائل</div>
+                    <div><i class="fas fa-check-circle" style="color: var(--neon-green);"></i> محتوى تدريبي مجاني</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="logo" style="justify-content: center;">RadioEdu AI</div>
+        <p style="color: var(--text-secondary); margin-top: 10px;">أول منصة عربية ذكية لتدريب تقنيي الأشعة.</p>
+        
+        <div class="social-icons">
+            <a href="https://www.instagram.com/s0_17iq"><i class="fab fa-instagram"></i></a>
+            <a href="https://tiktok.com/@radioedu.ai"><i class="fab fa-tiktok"></i></a>
+            <a href="https://t.me/radioedu_ai"><i class="fab fa-telegram"></i></a>
+            <a href="https://wa.me/9647838819550"><i class="fab fa-whatsapp"></i></a>
+            <a href="mailto:hackerkwzaky4@gmail.com"><i class="fas fa-envelope"></i></a>
+        </div>
+        
+        <p style="font-size: 14px; opacity: 0.6;">
+            المطور: SAJAD JAMAA | جميع الحقوق محفوظة &copy; 2026
+        </p>
+    </footer>
+
+    <script>
+        // --- إعدادات Supabase ---
+        const SB_URL = 'https://vglgfwbwsupretmefybp.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnbGdmd2J3c3VwcmV0bWVmeWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczNTQzNTEsImV4cCI6MjA4MjkzMDM1MX0.7d3dc1P9_rApLP08V9Rv2tdbfMmyarfAv39m_WfAcfQ';
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        // --- العداد التنازلي (30 يوم من الآن) ---
+        function startCountdown() {
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 30);
+
+            function update() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                document.getElementById('days').innerText = String(d).padStart(2, '0');
+                document.getElementById('hours').innerText = String(h).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(m).padStart(2, '0');
+            }
+            setInterval(update, 60000);
+            update();
+        }
+        startCountdown();
+
+        // --- جلب عدد المشتركين ---
+        async function updateSubCount() {
+            try {
+                const { count, error } = await _supabase
+                    .from('email_subscribers')
+                    .select('*', { count: 'exact', head: true });
+                
+                const display = document.getElementById('sub-count-display');
+                if (count === 0 || count === null) {
+                    display.innerHTML = '<i class="fas fa-rocket"></i> كن أول من يسجل في المنصة!';
+                } else {
+                    display.innerHTML = `<i class="fas fa-users"></i> انضم إلينا <span style="color:var(--neon-blue)">${count}</span> طالب محترف حتى الآن`;
+                }
+            } catch (e) { console.error(e); }
+        }
+        setInterval(updateSubCount, 30000);
+        updateSubCount();
+
+        // --- معالجة نموذج التسجيل ---
+        const subForm = document.getElementById('subscriberForm');
+        subForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const spinner = document.getElementById('btn-spinner');
+            const msg = document.getElementById('response-msg');
+            
+            const emailValue = document.getElementById('email').value.trim();
+            const nameValue = document.getElementById('full_name').value.trim();
+
+            // Loading state
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            msg.style.display = 'none';
+
+            try {
+                const { data, error } = await _supabase
+                    .from('email_subscribers')
+                    .insert([{ 
+                        email: emailValue, 
+                        name: nameValue, 
+                        source: 'landing_page' 
+                    }]);
+
+                if (error) throw error;
+
+                // Success
+                msg.innerText = "🎉 شكراً لك! تم تسجيلك بنجاح.";
+                msg.style.color = "var(--success-color)";
+                msg.style.display = 'block';
+                subForm.reset();
+                updateSubCount();
+
+            } catch (err) {
+                if (err.code === '23505') {
+                    msg.innerText = "هذا البريد مسجل مسبقاً!";
+                } else {
+                    msg.innerText = "عذراً، حدث خطأ ما. حاول لاحقاً.";
+                }
+                msg.style.color = "var(--error-color)";
+                msg.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+    });
+
+        // --- تأثيرات التمرير للهيدر ---
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('main-nav');
+            if (window.scrollY > 50) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+
+        // Console Art
+        console.log("%cRadioEdu AI - 2026", "color: #00d4ff; font-size: 20px; font-weight: bold;");
+        console.log("Developed by SAJAD JAMAA");
+    </script>
+</body>
+</html>
