@@ -3,115 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RadioEdu AI | المستقبل هنا</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>RadioEdu AI | مستقبل تعليم تقنيات الأشعة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
-            --bg: linear-gradient(135deg, #0f2027, #2c5364);
-            --neon: #00d4ff;
-            --glass: rgba(255, 255, 255, 0.05);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(90deg, #00d4ff, #00ff88);
+            --dark-bg: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a8dadc;
+            --neon-blue: #00d4ff;
         }
-        body {
-            background: var(--bg); color: white; font-family: 'Cairo', sans-serif;
-            margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; scroll-behavior: smooth; }
+        body { background: var(--dark-bg); color: var(--text-primary); overflow-x: hidden; line-height: 1.6; background-attachment: fixed; }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .fade-in { animation: fadeInUp 0.8s ease forwards; }
+
+        /* --- Glassmorphism UI --- */
+        .glass { background: var(--card-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--border-color); border-radius: 25px; }
+
+        /* --- Header --- */
+        header { position: fixed; top: 0; width: 100%; padding: 20px 10%; z-index: 1000; display: flex; justify-content: space-between; align-items: center; transition: 0.4s; }
+        header.scrolled { background: rgba(15, 32, 39, 0.9); padding: 10px 10%; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--neon-blue); display: flex; align-items: center; gap: 10px; }
+
+        /* --- Hero Section --- */
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 10%; position: relative; }
+        .badge { background: rgba(0, 212, 255, 0.1); border: 1px solid var(--neon-blue); padding: 5px 20px; border-radius: 50px; font-size: 14px; margin-bottom: 20px; color: var(--neon-blue); }
+        .hero h1 { font-size: clamp(40px, 8vw, 72px); font-weight: 900; background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; margin-bottom: 20px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 50px; width: 100%; max-width: 800px; }
+        .stat-card { padding: 20px; transition: 0.3s; }
+        .stat-card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.1); }
+
+        .floating-icon { position: absolute; font-size: 40px; color: rgba(0,212,255,0.1); z-index: -1; animation: float 6s infinite ease-in-out; }
+
+        /* --- Features Section --- */
+        .features { padding: 100px 10%; text-align: center; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-top: 60px; }
+        .feature-card { padding: 40px; position: relative; transition: 0.5s; border-top: 4px solid transparent; }
+        .feature-card:hover { transform: translateY(-15px); border-top: 4px solid var(--neon-blue); background: rgba(255,255,255,0.08); }
+        .feature-card i { font-size: 50px; background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+
+        /* --- CTA Section --- */
+        .cta-container { padding: 80px 10%; display: flex; justify-content: center; }
+        .registration-box { width: 100%; max-width: 600px; padding: 50px; text-align: center; }
+        
+        .timer { display: flex; justify-content: center; gap: 15px; margin: 30px 0; }
+        .timer-unit { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; min-width: 80px; }
+        .timer-unit span { display: block; font-size: 30px; font-weight: 900; color: var(--neon-blue); }
+
+        .form-group { margin-bottom: 20px; text-align: right; }
+        label { display: block; margin-bottom: 10px; font-size: 14px; opacity: 0.8; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: white; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--neon-blue); background: rgba(255,255,255,0.1); }
+
+        .btn-submit { width: 100%; padding: 18px; border-radius: 50px; border: none; background: var(--secondary-gradient); color: #000; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { transform: scale(1.03); box-shadow: 0 10px 30px rgba(0,212,255,0.4); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- Footer --- */
+        footer { padding: 50px 10%; border-top: 1px solid var(--border-color); text-align: center; }
+        .social-links { display: flex; justify-content: center; gap: 20px; margin: 25px 0; }
+        .social-links a { color: white; font-size: 24px; transition: 0.3s; }
+        .social-links a:hover { color: var(--neon-blue); transform: translateY(-5px); }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .timer-unit { min-width: 60px; padding: 10px; }
+            .timer-unit span { font-size: 20px; }
+            .registration-box { padding: 30px 20px; }
         }
-        .container {
-            width: 90%; max-width: 500px; padding: 40px; border-radius: 30px;
-            background: var(--glass); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1); text-align: center;
-        }
-        .timer { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
-        .time-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 15px; min-width: 70px; }
-        .time-box span { display: block; font-size: 24px; font-weight: 900; color: var(--neon); }
-        input {
-            width: 100%; padding: 15px; margin: 10px 0; border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
-            color: white; outline: none; box-sizing: border-box;
-        }
-        button {
-            width: 100%; padding: 15px; margin-top: 20px; border-radius: 50px;
-            border: none; background: linear-gradient(90deg, #00d4ff, #00ff88);
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        button:disabled { opacity: 0.5; }
-        #msg { margin-top: 15px; font-size: 14px; display: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 style="color: var(--neon)">RadioEdu AI</h2>
-    <p>متبقي على الإطلاق:</p>
-    
-    <div class="timer">
-        <div class="time-box"><span id="days">00</span>يوم</div>
-        <div class="time-box"><span id="hours">00</span>ساعة</div>
-        <div class="time-box"><span id="mins">00</span>دقيقة</div>
-    </div>
+    <header id="navbar">
+        <div class="logo"><i class="fas fa-microchip"></i> RadioEdu AI</div>
+        <a href="#register" class="btn-submit" style="width: auto; padding: 10px 25px; font-size: 14px;">انضم الآن</a>
+    </header>
 
-    <form id="regForm">
-        <input type="text" id="name" placeholder="الاسم الكامل">
-        <input type="email" id="email" placeholder="البريد الإلكتروني *" required>
-        <button type="submit" id="btn">سجل اهتمامك الآن</button>
-    </form>
-    
-    <div id="msg"></div>
-    <p id="count" style="margin-top:20px; font-size:13px; opacity:0.7;"><i class="fas fa-users"></i> جاري التحميل...</p>
-</div>
-
-<script>
-    const SB_URL = 'https://vglgfwbwsupretmefybp.supabase.co';
-    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnbGdmd2J3c3VwcmV0mme mefybpiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczNTQzNTEsImV4cCI6MjA4MjkzMDM1MX0.7d3dc1P9_rApLP08V9Rv2tdbfMmyarfAv39m_WfAcfQ';
-    const _sb = supabase.createClient(SB_URL, SB_KEY);
-
-    // العداد التنازلي
-    function updateTimer() {
-        const target = new Date("2026-02-15T00:00:00").getTime(); // موعد افتراضي
-        const now = new Date().getTime();
-        const diff = target - now;
-        if(diff < 0) return;
-        document.getElementById('days').innerText = Math.floor(diff / (1000*60*60*24));
-        document.getElementById('hours').innerText = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        document.getElementById('mins').innerText = Math.floor((diff % (1000*60*60)) / (1000*60));
-    }
-    setInterval(updateTimer, 1000); updateTimer();
-
-    // جلب العدد
-    async function getCount() {
-        const { count } = await _sb.from('email_subscribers').select('*', { count: 'exact', head: true });
-        document.getElementById('count').innerHTML = `<i class="fas fa-users"></i> انضم إلينا ${count || 0} شخص`;
-    }
-    getCount();
-
-    // إرسال البيانات
-    document.getElementById('regForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btn');
-        const msg = document.getElementById('msg');
+    <section class="hero">
+        <i class="fas fa-atom floating-icon" style="top:20%; left:10%;"></i>
+        <i class="fas fa-brain floating-icon" style="bottom:20%; right:10%; animation-delay:2s;"></i>
         
-        btn.disabled = true;
-        msg.style.display = 'block';
-        msg.innerText = "جاري الحفظ...";
+        <div class="badge fade-in">قريباً في 2026</div>
+        <h1 class="fade-in">مستقبل تعليم <br> تقنيات الأشعة</h1>
+        <p class="fade-in">أول منصة عربية ذكية تدربك على الحالات الإشعاعية الحقيقية باستخدام الذكاء الاصطناعي المتقدم.</p>
+        
+        <div class="stats-grid fade-in">
+            <div class="stat-card glass"><h3>5000+</h3><p>صورة إشعاعية</p></div>
+            <div class="stat-card glass"><h3>AI</h3><p>ذكاء متخصص</p></div>
+            <div class="stat-card glass"><h3>100%</h3><p>حالات واقعية</p></div>
+        </div>
+    </section>
 
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
+    <section class="features">
+        <h2 style="font-size: 32px;">ماذا ينتظركم في "RadioEdu AI"؟</h2>
+        <div class="features-grid">
+            <div class="feature-card glass">
+                <i class="fas fa-hospital-user"></i>
+                <h3>المركز السريري</h3>
+                <p>واجه تحديات واقعية وحالات طوارئ حقيقية مسحوبة من سحابة البيانات الخاصة بنا.</p>
+            </div>
+            <div class="feature-card glass">
+                <i class="fas fa-robot"></i>
+                <h3>مدربك الشخصي AI</h3>
+                <p>النظام سيصحح لك تحليلك للصورة ويعطيك الملاحظات الطبية والتقنية فوراً.</p>
+            </div>
+            <div class="feature-card glass">
+                <i class="fas fa-book-medical"></i>
+                <h3>رحلة في التشريح</h3>
+                <p>استكشف خبايا الجسم البشري إشعاعياً من خلال موسوعة تفاعلية تربط التشريح بالحالات.</p>
+            </div>
+            <div class="feature-card glass">
+                <i class="fas fa-chart-line"></i>
+                <h3>راقب مستواك</h3>
+                <p>شاهد مستواك يرتفع مع كل تشخيص واجمع نقاط XP لتنافس زملاءك وتصبح محترفاً.</p>
+            </div>
+        </div>
+    </section>
 
-        try {
-            const { error } = await _sb.from('email_subscribers').insert([{ name, email, source: 'landing_page' }]);
-            if (error) throw error;
-            msg.style.color = "#00ff88";
-            msg.innerText = "تم تسجيلك بنجاح! 🎉";
-            document.getElementById('regForm').reset();
-            getCount();
-        } catch (err) {
-            msg.style.color = "#ff6b6b";
-            msg.innerText = err.message.includes("duplicate") ? "هذا الإيميل مسجل مسبقاً" : "حدث خطأ، حاول ثانية";
-        } finally {
-            btn.disabled = false;
+    <section class="cta-container" id="register">
+        <div class="registration-box glass">
+            <h2>احجز مقعدك في مقدمة المستقبل</h2>
+            <div class="timer">
+                <div class="timer-unit"> <span id="days">00</span> يوم </div>
+                <div class="timer-unit"> <span id="hours">00</span> ساعة </div>
+                <div class="timer-unit"> <span id="mins">00</span> دقيقة </div>
+            </div>
+
+            <form id="subscriberForm">
+                <div class="form-group">
+                    <label>الاسم الكامل (اختياري)</label>
+                    <input type="text" id="user_name" placeholder="أدخل اسمك الكريم">
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني *</label>
+                    <input type="email" id="user_email" required placeholder="example@email.com">
+                </div>
+                <button type="submit" class="btn-submit" id="submitBtn">سجل اهتمامك الآن</button>
+            </form>
+            
+            <p id="msg" style="margin-top: 20px; display: none;"></p>
+            <p id="subCount" style="margin-top: 20px; font-size: 14px; opacity: 0.7;">جاري تحميل المشتركين...</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="logo" style="justify-content: center;">RadioEdu AI</div>
+        <div class="social-links">
+            <a href="https://www.instagram.com/s0_17iq"><i class="fab fa-instagram"></i></a>
+            <a href="https://tiktok.com/@radioedu.ai"><i class="fab fa-tiktok"></i></a>
+            <a href="https://t.me/radioedu_ai"><i class="fab fa-telegram"></i></a>
+            <a href="https://wa.me/9647838819550"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p style="font-size: 12px; opacity: 0.5;">المطور: SAJAD JAMAA | جميع الحقوق محفوظة 2026</p>
+    </footer>
+
+    <script>
+        // --- 1. Supabase Config ---
+        const SB_URL = 'https://vglgfwbwsupretmefybp.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnbGdmd2J3c3VwcmV0bWVmeWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczNTQzNTEsImV4cCI6MjA4MjkzMDM1MX0.7d3dc1P9_rApLP08V9Rv2tdbfMmyarfAv39m_WfAcfQ';
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        // --- 2. Countdown Logic ---
+        function updateTimer() {
+            const launchDate = new Date(); launchDate.setDate(launchDate.getDate() + 30);
+            const now = new Date(); const diff = launchDate - now;
+            document.getElementById('days').innerText = Math.floor(diff / (1000*60*60*24));
+            document.getElementById('hours').innerText = Math.floor((diff / (1000*60*60)) % 24);
+            document.getElementById('mins').innerText = Math.floor((diff / 1000 / 60) % 60);
         }
-    };
-</script>
+        setInterval(updateTimer, 60000); updateTimer();
+
+        // --- 3. Fetch Subscriber Count ---
+        async function fetchCount() {
+            try {
+                const { count, error } = await _supabase.from('email_subscribers').select('*', { count: 'exact', head: true });
+                const el = document.getElementById('subCount');
+                el.innerText = count > 0 ? `انضم إلينا ${count} طالباً حتى الآن` : "كن أول من ينضم إلينا!";
+            } catch (e) { console.error(e); }
+        }
+        fetchCount();
+
+        // --- 4. Form Submission ---
+        const form = document.getElementById('subscriberForm');
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('msg');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            btn.disabled = true;
+            msg.style.display = 'block';
+            msg.innerText = "جاري الحفظ...";
+            msg.style.color = "white";
+
+            const nameValue = document.getElementById('user_name').value.trim();
+            const emailValue = document.getElementById('user_email').value.trim();
+
+            try {
+                // ملاحظة: تأكد أن اسم العمود في جدولك هو email و name و source
+                const { error } = await _supabase.from('email_subscribers').insert([
+                    { email: emailValue, name: nameValue, source: 'landing_page' }
+                ]);
+
+                if (error) throw error;
+
+                msg.innerText = "تم تسجيلك بنجاح! 🎉";
+                msg.style.color = "#00ff88";
+                form.reset();
+                fetchCount();
+            } catch (err) {
+                console.error("Supabase Error:", err);
+                if (err.code === '23505') {
+                    msg.innerText = "هذا البريد مسجل مسبقاً لدينا.";
+                } else {
+                    msg.innerText = "خطأ في الاتصال: " + err.message;
+                }
+                msg.style.color = "#ff6b6b";
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        window.onscroll = () => {
+            const nav = document.getElementById('navbar');
+            window.scrollY > 50 ? nav.classList.add('scrolled') : nav.classList.remove('scrolled');
+        };
+    </script>
 </body>
 </html>
